@@ -1,26 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
+import { FaCloudUploadAlt, FaFileAlt, FaFilePdf, FaImage, FaDownload, FaTrash } from 'react-icons/fa';
 
 const Documents = () => {
     const { tripId } = useParams();
-    const [file, setFile] = useState(null);
     const [documents, setDocuments] = useState([]);
+    const [file, setFile] = useState(null);
+    const [uploading, setUploading] = useState(false);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
 
     useEffect(() => {
         fetchDocuments();
-    }, [tripId]);
+    }, []);
 
     const fetchDocuments = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/v1/documents/${tripId}`);
-            setDocuments(response.data);
-            setLoading(false);
-        } catch (err) {
-            console.error("Error fetching documents:", err);
-            setError("Failed to load documents.");
+            const res = await axios.get(`${import.meta.env.VITE_API_URL}/documents/${tripId}`);
+            setDocuments(res.data);
+        } catch (error) {
+            console.error('Error fetching documents:', error);
+        } finally {
             setLoading(false);
         }
     };
@@ -37,61 +37,105 @@ const Documents = () => {
         formData.append('file', file);
         formData.append('tripId', tripId);
 
+        setUploading(true);
         try {
-            await axios.post('http://localhost:5000/api/v1/documents', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
+            const res = await axios.post(`${import.meta.env.VITE_API_URL}/documents`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
             });
+            setDocuments([...documents, res.data]);
             setFile(null);
-            fetchDocuments(); // Refresh list
-        } catch (err) {
-            console.error("Error uploading document:", err);
-            setError("Failed to upload document.");
+            // Reset file input
+            e.target.reset();
+        } catch (error) {
+            console.error('Error uploading document:', error);
+            alert('Upload failed');
+        } finally {
+            setUploading(false);
         }
     };
 
-    return (
-        <div className="documents-container" style={{ padding: '20px' }}>
-            <h2>Document Vault</h2>
+    const getFileIcon = (url) => {
+        if (!url) return <FaFileAlt className="text-blue-500 text-4xl" />;
+        if (url.match(/\.(jpeg|jpg|gif|png)$/i)) return <FaImage className="text-purple-500 text-4xl" />;
+        if (url.match(/\.(pdf)$/i)) return <FaFilePdf className="text-red-500 text-4xl" />;
+        return <FaFileAlt className="text-blue-500 text-4xl" />;
+    };
 
-            <div className="upload-section" style={{ marginBottom: '20px' }}>
-                <h3>Upload Document</h3>
-                <form onSubmit={handleUpload}>
-                    <input type="file" onChange={handleFileChange} />
-                    <button type="submit" disabled={!file} style={{ marginLeft: '10px' }}>
-                        Upload
-                    </button>
-                </form>
+    return (
+        <div className="max-w-6xl mx-auto">
+            <div className="mb-8">
+                <h1 className="text-3xl font-bold text-gray-800">Trip Documents</h1>
+                <p className="text-gray-500">Keep all your tickets and bookings in one place</p>
             </div>
 
-            <div className="list-section">
-                <h3>Uploaded Documents</h3>
-                {loading ? (
-                    <p>Loading...</p>
-                ) : error ? (
-                    <p style={{ color: 'red' }}>{error}</p>
-                ) : documents.length === 0 ? (
-                    <p>No documents uploaded yet.</p>
-                ) : (
-                    <ul style={{ listStyleType: 'none', padding: 0 }}>
-                        {documents.map((doc) => (
-                            <li key={doc._id} style={{ marginBottom: '10px', borderBottom: '1px solid #eee', paddingBottom: '5px' }}>
-                                <a
-                                    href={`http://localhost:5000/${doc.filePath}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    style={{ textDecoration: 'none', color: '#007bff' }}
-                                >
-                                    {doc.fileName}
-                                </a>
-                                <span style={{ marginLeft: '10px', fontSize: '0.8em', color: '#666' }}>
-                                    {new Date(doc.uploadedAt).toLocaleDateString()}
-                                </span>
-                            </li>
-                        ))}
-                    </ul>
-                )}
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                {/* Upload Area */}
+                <div className="lg:col-span-1">
+                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 sticky top-24">
+                        <h3 className="text-lg font-semibold mb-4">Upload New</h3>
+                        <form onSubmit={handleUpload} className="space-y-4">
+                            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:bg-gray-50 transition-colors cursor-pointer relative">
+                                <input
+                                    type="file"
+                                    onChange={handleFileChange}
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                />
+                                <FaCloudUploadAlt className="mx-auto text-4xl text-gray-400 mb-2" />
+                                <p className="text-sm text-gray-500">
+                                    {file ? file.name : "Click or drag file to upload"}
+                                </p>
+                            </div>
+                            <button
+                                type="submit"
+                                disabled={!file || uploading}
+                                className={`w-full py-2 rounded-lg font-medium text-white transition-colors ${!file || uploading ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 shadow-md'
+                                    }`}
+                            >
+                                {uploading ? 'Uploading...' : 'Upload Document'}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                {/* Documents Grid */}
+                <div className="lg:col-span-3">
+                    {loading ? (
+                        <div className="text-center py-12">Loading documents...</div>
+                    ) : documents.length === 0 ? (
+                        <div className="text-center py-16 bg-white rounded-xl shadow-sm border border-dashed border-gray-300">
+                            <div className="text-6xl mb-4">📂</div>
+                            <h3 className="text-xl font-medium text-gray-700">No documents yet</h3>
+                            <p className="text-gray-500">Upload tickets, reservations, or maps.</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {documents.map((doc) => (
+                                <div key={doc._id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all group">
+                                    <div className="flex justify-center mb-4 h-24 items-center bg-gray-50 rounded-lg">
+                                        {getFileIcon(doc.url)}
+                                    </div>
+                                    <h4 className="font-semibold text-gray-800 truncate mb-1" title={doc.originalName || doc.fileName || "Document"}>
+                                        {doc.originalName || doc.fileName || "Document"}
+                                    </h4>
+                                    <p className="text-xs text-gray-400 mb-4">
+                                        {doc.uploadedAt ? new Date(doc.uploadedAt).toLocaleDateString() : 'Unknown Date'}
+                                    </p>
+                                    <div className="flex justify-between items-center">
+                                        <a
+                                            href={doc.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center"
+                                        >
+                                            <FaDownload className="mr-1" /> Download
+                                        </a>
+                                        {/* Delete button could go here */}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );
