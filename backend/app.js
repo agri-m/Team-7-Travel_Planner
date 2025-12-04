@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const documentRoutes = require('./routes/documentRoutes');
 
 const app = express();
 const mongoose = require('mongoose');
@@ -17,9 +18,13 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/travel-plan
     .catch(err => console.error('MongoDB connection error:', err));
 
 app.use('/api/v1/trips', tripRoutes);
+app.use('/api/v1/documents', documentRoutes);
 
 app.get('/', (req, res) => {
     res.send('Server is running');
 });
+
+// Routes
+app.use('/api/v1/trips', require('./routes/tripRoutes'));
 
 module.exports = app;

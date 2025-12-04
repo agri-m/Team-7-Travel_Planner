@@ -43,5 +43,10 @@ router.get('/:tripId/members', async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 });
+const { createTrip, getTrips } = require('../controllers/tripController');
+
+router.route('/')
+    .post(createTrip)
+    .get(getTrips);
 
 module.exports = router;
