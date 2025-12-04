@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Documents from './pages/Documents';
+import Trips from './pages/Trips';
 import './App.css';
 
 function App() {
@@ -23,6 +24,9 @@ function App() {
         </Routes>
       </div>
     </Router>
+    <div className="App">
+      <Trips />
+    </div>
   );
 }
 
