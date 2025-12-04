@@ -1,3 +1,7 @@
+import { useState } from 'react'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Members from './pages/Members';
+import './App.css'
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Documents from './pages/Documents';
@@ -7,6 +11,16 @@ import './App.css';
 function App() {
   return (
     <Router>
+      <Routes>
+        <Route path="/" element={<div>Home Page</div>} />
+        <Route path="/trips/:tripId/members" element={<Members />} />
+      </Routes>
+    </Router>
+  )
+}
+
+export default App
+
       <div className="app-container">
         <nav style={{ padding: '10px', borderBottom: '1px solid #ccc', marginBottom: '20px' }}>
           <Link to="/" style={{ marginRight: '10px' }}>Home</Link>
