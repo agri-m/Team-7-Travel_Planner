@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import AddTripModal from '../components/AddTripModal';
 
 const Trips = () => {
     const [trips, setTrips] = useState([]);
@@ -27,6 +28,7 @@ const Trips = () => {
     return (
         <div>
             <h1>Trips</h1>
+            <AddTripModal onTripAdded={fetchTrips} />
             <div className="trip-list">
                 {trips.map(trip => (
                     <div key={trip._id} style={{ border: '1px solid #ccc', margin: '10px', padding: '10px' }}>
