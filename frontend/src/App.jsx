@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Settlement from './pages/Settlement';
 import { useState } from 'react'
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import Itinerary from './pages/Itinerary';
 import Expenses from './pages/Expenses';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Members from './pages/Members';
@@ -29,6 +30,15 @@ function App() {
 }
 
     <Router>
+      <div className="app-container">
+        <nav>
+          <Link to="/">Home</Link> | <Link to="/itinerary">Itinerary</Link>
+        </nav>
+        <Routes>
+          <Route path="/" element={<h1>Welcome to Travel Planner</h1>} />
+          <Route path="/itinerary" element={<Itinerary />} />
+        </Routes>
+      </div>
       <div className="app">
         <nav>
           <Link to="/">Home</Link> | <Link to="/expenses">Expenses</Link>
