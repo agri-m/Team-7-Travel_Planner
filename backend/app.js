@@ -10,4 +10,7 @@ app.get('/', (req, res) => {
     res.send('Server is running');
 });
 
+// Routes
+app.use('/api/v1/trips', require('./routes/tripRoutes'));
+
 module.exports = app;
