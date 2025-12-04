@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import Expenses from './pages/Expenses';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Members from './pages/Members';
 import './App.css'
@@ -11,6 +13,15 @@ import './App.css';
 function App() {
   return (
     <Router>
+      <div className="app">
+        <nav>
+          <Link to="/">Home</Link> | <Link to="/expenses">Expenses</Link>
+        </nav>
+        <Routes>
+          <Route path="/" element={<h1>Welcome to Travel Planner</h1>} />
+          <Route path="/expenses" element={<Expenses />} />
+        </Routes>
+      </div>
       <Routes>
         <Route path="/" element={<div>Home Page</div>} />
         <Route path="/trips/:tripId/members" element={<Members />} />
