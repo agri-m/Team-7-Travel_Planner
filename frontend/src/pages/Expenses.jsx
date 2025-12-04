@@ -1,4 +1,3 @@
-```
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -14,9 +13,19 @@ const Expenses = () => {
         splits: [{ user: '', amount: '' }, { user: '', amount: '' }] // Start with 2 splits
     });
 
+    const fetchExpenses = async () => {
+        try {
+            const response = await axios.get(`http://localhost:5000/api/v1/expenses/${tripId}`);
+            setExpenses(response.data);
+            setLoading(false);
+        } catch (error) {
+            console.error('Error fetching expenses:', error);
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        // Placeholder for fetching expenses
-        setLoading(false);
+        fetchExpenses();
     }, []);
 
     const handleInputChange = (e) => {
@@ -42,8 +51,6 @@ const Expenses = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // Validate splits sum matches total amount (optional but good practice)
-        // Convert splits array to map/object for backend
         const splitsMap = {};
         formData.splits.forEach(split => {
             if (split.user && split.amount) {
@@ -61,13 +68,13 @@ const Expenses = () => {
             };
             await axios.post('http://localhost:5000/api/v1/expenses', payload);
             alert('Expense added successfully!');
-            // Reset form or fetch expenses
             setFormData({
                 title: '',
                 amount: '',
                 paidBy: '',
                 splits: [{ user: '', amount: '' }, { user: '', amount: '' }]
             });
+            fetchExpenses(); // Refresh list
         } catch (error) {
             console.error('Error adding expense:', error);
             alert('Failed to add expense');
@@ -125,12 +132,42 @@ const Expenses = () => {
             </div>
 
             <div className="expense-list-container">
-                {/* List will go here */}
-                <p>List Placeholder</p>
+                <h2>Expense List</h2>
+                {loading ? (
+                    <p>Loading expenses...</p>
+                ) : expenses.length === 0 ? (
+                    <p>No expenses recorded yet.</p>
+                ) : (
+                    <table border="1" cellPadding="10" style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Amount</th>
+                                <th>Paid By</th>
+                                <th>Splits</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {expenses.map((expense) => (
+                                <tr key={expense._id}>
+                                    <td>{expense.title}</td>
+                                    <td>{expense.amount}</td>
+                                    <td>{expense.paidBy}</td>
+                                    <td>
+                                        <ul>
+                                            {Object.entries(expense.splits).map(([user, amount]) => (
+                                                <li key={user}>{user}: {amount}</li>
+                                            ))}
+                                        </ul>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
             </div>
         </div>
     );
 };
 
 export default Expenses;
-```
