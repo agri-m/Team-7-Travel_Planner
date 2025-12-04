@@ -22,6 +22,7 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/travel-pl
 app.use(cors());
 app.use(express.json());
 
+const settlementRoutes = require('./routes/settlementRoutes');
 // Database Connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/travel-planner')
     .then(() => console.log('Connected to MongoDB'))
@@ -45,6 +46,7 @@ app.get('/', (req, res) => {
     res.send('Server is running');
 });
 
+app.use('/api/v1/settlement', settlementRoutes);
 // Routes
 app.use('/api/v1/trips', require('./routes/tripRoutes'));
 

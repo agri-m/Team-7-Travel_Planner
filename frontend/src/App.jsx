@@ -1,3 +1,5 @@
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Settlement from './pages/Settlement';
 import { useState } from 'react'
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Itinerary from './pages/Itinerary';
@@ -13,6 +15,20 @@ import './App.css';
 
 function App() {
   return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={
+          <div className="App">
+            <h1>Travel Planner</h1>
+            <p>Welcome to the Travel Planner App</p>
+          </div>
+        } />
+        <Route path="/settlement/:tripId" element={<Settlement />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
     <Router>
       <div className="app-container">
         <nav>
